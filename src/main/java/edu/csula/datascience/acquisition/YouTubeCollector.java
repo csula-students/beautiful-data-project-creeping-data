@@ -22,7 +22,7 @@ public class YouTubeCollector implements Collector<VideoModel, VideoModel> {
         mongoClient = new MongoClient();
 
         // select `bd-example` as testing database
-        database = mongoClient.getDatabase("masd");
+        database = mongoClient.getDatabase("data-science");
 
         // select collection by name `tweets`
         collection = database.getCollection("videos");
@@ -35,13 +35,14 @@ public class YouTubeCollector implements Collector<VideoModel, VideoModel> {
     @Override
     public void save(Collection<VideoModel> data) {
         List<Document> documents = data.stream()
-                .map(item -> new Document()
-                        .append("title", "ToDO")
-                        .append("publishedDate", "ToDO")
-                        .append("dislikeCount", item.dislikeCount.intValue())
-                        .append("commentCount", item.commentCount.intValue())
-                        .append("viewCount", item.viewCount.intValue())
-                        .append("likeCount", item.likeCount.intValue()))
+                .map(vm -> new Document()
+                        .append("videoId", vm.id)
+                        .append("title", vm.title)
+                        .append("publishedDate", vm.publishedDate)
+                        .append("dislikeCount", vm.dislikeCount.intValue())
+                        .append("commentCount", vm.commentCount.intValue())
+                        .append("viewCount", vm.viewCount.intValue())
+                        .append("likeCount", vm.likeCount.intValue()))
                 .collect(Collectors.toList());
 
         collection.insertMany(documents);

@@ -11,6 +11,7 @@ import java.util.List;
  */
 public class VideoModel {
     // snippets
+    public String id;
     public String title;
     public String publishedDate;
 

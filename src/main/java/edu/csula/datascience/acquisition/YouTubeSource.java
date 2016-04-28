@@ -8,7 +8,10 @@ import com.google.api.services.youtube.model.*;
 import java.io.*;
 import java.util.*;
 
-
+/**
+ * Collection of public youtube video data using the youtube api
+ *
+ */
 public class YouTubeSource  implements Source<VideoModel> {
     String query;
     YouTube youtube;
@@ -72,7 +75,7 @@ public class YouTubeSource  implements Source<VideoModel> {
                 ResourceId rId = video.getId();
                 //determine if the video is a video
                 if (rId.getKind().equals("youtube#video")) {
-                    addVideoModel(rId.getVideoId());
+                    addVideoModel(video);
                 }
             }
         } catch (IOException e) {
@@ -84,13 +87,13 @@ public class YouTubeSource  implements Source<VideoModel> {
      * Because of the Youtube api, we must make another request to get the statistics of a video.
      * Also, this function will set up the video model and add it to video models list.
      *
-     * @param id The id of the video
+     * @param videoResult The upper level information of a video.
      */
-    public void addVideoModel(String id){
+    private void addVideoModel(SearchResult videoResult){
         try {
             // set parameters of request
             YouTube.Videos.List videos = youtube.videos().list("id,statistics");
-            videos.setId(id);
+            videos.setId(videoResult.getId().getVideoId());
             videos.setKey(properties.getProperty("api_key"));
             videos.setMaxResults(MAX_ITEMS);
 
@@ -103,7 +106,7 @@ public class YouTubeSource  implements Source<VideoModel> {
                 Video video = resultsList.get(0);
                 System.out.println(video);
                 VideoStatistics stats = video.getStatistics();
-                videoModels.push(getVideoModel(stats, video));
+                videoModels.push(getVideoModel(stats, videoResult));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -117,12 +120,13 @@ public class YouTubeSource  implements Source<VideoModel> {
      * @param video the video inforamtion for the video model*
      *@return Video model
     */
-    private VideoModel getVideoModel(VideoStatistics stats, Video video){
+    private VideoModel getVideoModel(VideoStatistics stats, SearchResult video){
         VideoModel vm = new VideoModel();
         System.out.println(vm);
         System.out.println(video);
-        vm.title = video.toString();
-        vm.publishedDate = video.toString();
+        vm.id = video.getId().getVideoId();
+        vm.title = video.getSnippet().getTitle();
+        vm.publishedDate = video.getSnippet().getPublishedAt().toString();
         vm.commentCount = stats.getCommentCount();
         vm.viewCount = stats.getViewCount();
         System.out.println(vm.viewCount);
