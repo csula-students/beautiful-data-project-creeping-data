@@ -67,6 +67,12 @@ task esExample(type: JavaExec) {
   main = 'edu.csula.datascience.examples.ElasticSearchExampleApp'
 }
 
+task acquireYoutube(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+
+  main = 'edu.csula.datascience.acquisition.YoutTubeSource'
+}
+
 task wrapper(type: Wrapper) {
   gradleVersion = '2.0'
 }
