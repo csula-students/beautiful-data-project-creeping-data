@@ -1,79 +1,41 @@
 package edu.csula.datascience.acquisition;
 
-import com.google.common.collect.Lists;
-import twitter4j.*;
-import twitter4j.conf.ConfigurationBuilder;
+        import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+        import com.google.api.client.http.HttpRequest;
+        import com.google.api.client.http.HttpRequestInitializer;
+        import com.google.api.services.youtube.YouTube;
+        import com.google.api.services.youtube.model.ResourceId;
+        import com.google.api.services.youtube.model.SearchListResponse;
+        import com.google.api.services.youtube.model.SearchResult;
+        import com.google.api.services.youtube.model.Thumbnail;
+        import org.apache.http.HttpEntity;
+        import org.apache.http.HttpResponse;
+        import org.apache.http.NameValuePair;
+        import org.apache.http.client.HttpClient;
+        import org.apache.http.client.methods.HttpGet;
+        import org.apache.http.client.utils.URLEncodedUtils;
+        import org.apache.http.impl.client.DefaultHttpClient;
+        import org.apache.http.message.BasicNameValuePair;
+        import org.codehaus.jackson.JsonNode;
+        import org.codehaus.jackson.node.ArrayNode;
 
-import java.util.Collection;
-import java.util.List;
+        import java.io.BufferedReader;
+        import java.io.IOException;
+        import java.io.InputStream;
+        import java.io.InputStreamReader;
+        import java.util.ArrayList;
+        import java.util.Iterator;
+        import java.util.List;
+        import java.util.Properties;
+        import java.util.regex.Matcher;
+        import java.util.regex.Pattern;
 
-/**
- * An example of Source implementation using Twitter4j api to grab tweets
- */
-public class YouTubeSource implements Source<Status> {
-    private long minId;
-    private final String searchQuery;
-
-    public YouTubeSource(long minId, String query) {
-        this.minId = minId;
-        this.searchQuery = query;
+public class YouTubeSource  implements Source<ArrayList<Integer>> {
+    @Override
+    public boolean hasNext(){
+        return true;
     }
 
     @Override
-    public boolean hasNext() {
-        return minId > 0;
-    }
-
-    @Override
-    public Collection<Status> next() {
-        List<Status> list = Lists.newArrayList();
-        ConfigurationBuilder cb = new ConfigurationBuilder();
-        cb.setDebugEnabled(true)
-                .setOAuthConsumerKey(System.getenv("TWITTER_CONSUMER_KEY"))
-                .setOAuthConsumerSecret(System.getenv("TWITTER_CONSUMER_SECRET"))
-                .setOAuthAccessToken(System.getenv("TWITTER_ACCESS_TOKEN"))
-                .setOAuthAccessTokenSecret(System.getenv("TWITTER_ACCESS_SECRET"));
-        TwitterFactory tf = new TwitterFactory(cb.build());
-        Twitter twitter = tf.getInstance();
-
-        Query query = new Query(searchQuery);
-        query.setLang("EN");
-        query.setSince("20140101");
-        if (minId != Long.MAX_VALUE) {
-            query.setMaxId(minId);
-        }
-
-        list.addAll(getTweets(twitter, query));
-
-        return list;
-    }
-
-    private List<Status> getTweets(Twitter twitter, Query query) {
-        QueryResult result;
-        List<Status> list = Lists.newArrayList();
-        try {
-            do {
-                result = twitter.search(query);
-
-                List<Status> tweets = result.getTweets();
-                for (Status tweet : tweets) {
-                    minId = Math.min(minId, tweet.getId());
-                }
-                list.addAll(tweets);
-            } while ((query = result.nextQuery()) != null);
-        } catch (TwitterException e) {
-            // Catch exception to handle rate limit and retry
-            e.printStackTrace();
-            System.out.println("Got twitter exception. Current min id " + minId);
-            try {
-                Thread.sleep(e.getRateLimitStatus()
-                        .getSecondsUntilReset() * 1000);
-                list.addAll(getTweets(twitter, query));
-            } catch (InterruptedException e1) {
-                e1.printStackTrace();
-            }
-        }
-
-        return list;
-    }
+    public 
 }

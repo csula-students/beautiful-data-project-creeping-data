@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
 /**
  * An example of Collector implementation using YouTube with MongoDB Java driver
  */
-public class TwitterCollector implements Collector<Status, Status> {
+public class YouTubeCollector implements Collector<Status, Status> {
     MongoClient mongoClient;
     MongoDatabase database;
     MongoCollection<Document> collection;
-    public TwitterCollector() {
+    public YouTubeCollector() {
         // establish database connection to MongoDB
         mongoClient = new MongoClient();
 
