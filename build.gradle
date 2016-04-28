@@ -70,7 +70,7 @@ task esExample(type: JavaExec) {
 task acquireYoutube(type: JavaExec) {
   classpath = sourceSets.main.runtimeClasspath
 
-  main = 'edu.csula.datascience.acquisition.YoutTubeSource'
+  main = 'edu.csula.datascience.acquisition.YoutTubeCollectorApp'
 }
 
 task wrapper(type: Wrapper) {

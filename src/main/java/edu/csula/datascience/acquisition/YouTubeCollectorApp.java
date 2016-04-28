@@ -10,8 +10,13 @@ import java.util.Collection;
 public class YouTubeCollectorApp {
 
     public static void main(String[] args) {
-
-
+        YouTubeSource source = new YouTubeSource("Batman");
+        YouTubeCollector collector = new YouTubeCollector();
+        //while(source.hasNext()){
+            Collection<VideoModel> videosList = source.next();
+            Collection<VideoModel> cleanedList = collector.mungee(videosList);
+            collector.save(cleanedList);
+        //}
     }
 
 }
