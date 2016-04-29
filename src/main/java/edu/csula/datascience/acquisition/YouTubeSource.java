@@ -4,6 +4,11 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
+import com.google.api.services.youtube.model.Comment;
+import com.google.api.services.youtube.model.CommentSnippet;
+import com.google.api.services.youtube.model.CommentThread;
+import com.google.api.services.youtube.model.V3CommentListResponse;
+import com.google.api.services.youtube.model.V3CommentThreadListResponse;
 
 import java.io.*;
 import java.util.*;
@@ -58,7 +63,7 @@ public class YouTubeSource  implements Source<VideoModel> {
     @Override
     public Collection<VideoModel> next(){
         return videoModels;
-    }
+}
 
     private void search(){
         try {
@@ -138,6 +143,28 @@ public class YouTubeSource  implements Source<VideoModel> {
         vm.publishedDate = video.getSnippet().getPublishedAt().toString();
         vm.commentCount = stats.getCommentCount();
         vm.viewCount = stats.getViewCount();
+
+        try {
+            V3CommentThreadListResponse videoCommentsListResponse = this.youtube.commentThreads().list("snippet").
+                    setVideoId(video.getId().getVideoId()).setTextFormat("plainText").execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        vm.comments = videoCommentsListResponse.getItems();
+        if (vm.comments.isEmpty()) {
+            System.out.println("Can't get video comments.");
+        } else {
+            // Print information from the API response.
+            System.out
+                    .println("\n================== Returned Video Comments ==================\n");
+            for (CommentThread comment : vm.comments) {
+                CommentSnippet snippet = comment.getSnippet().getTopLevelComment().getSnippet();
+                //System.out.println("  - Author: " + snippet.getAuthorDisplayName());
+                System.out.println("  - Comment: " + snippet.getTextDisplay());
+                System.out
+                        .println("\n-------------------------------------------------------------\n");
+            }
+            CommentThread firstComment = vm.comments.get(0);
         //System.out.println(vm.viewCount);
         // null pointer here
         vm.likeCount = stats.getLikeCount();
