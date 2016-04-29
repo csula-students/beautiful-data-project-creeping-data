@@ -10,7 +10,7 @@ import java.util.Collection;
 public class YouTubeCollectorApp {
 
     public static void main(String[] args) {
-        YouTubeSource source = new YouTubeSource("Batman");
+        YouTubeSource source = new YouTubeSource("trailer");
         YouTubeCollector collector = new YouTubeCollector();
         //while(source.hasNext()){
             Collection<VideoModel> videosList = source.next();

@@ -17,14 +17,14 @@ public class YouTubeSource  implements Source<VideoModel> {
     YouTube youtube;
     Properties properties;
     Stack<VideoModel> videoModels;
-
+    String pageToken;
     private static String FILE_PATH = "misc/youtube_key.properties";
-    private static long MAX_ITEMS = 1;
+    private static long MAX_ITEMS = 50;
 
     public YouTubeSource(String query){
         this.query = query;
         this.videoModels = new Stack<>();
-
+        this.pageToken = "";
         // Masking developer key using a properties file
         properties = new Properties();
         try {
@@ -37,7 +37,8 @@ public class YouTubeSource  implements Source<VideoModel> {
         this.youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request -> {
         }).setApplicationName("youtube-creeper-data-science").build();
 
-        search();
+        while(pageToken != null)
+             search();
 
     }
 
@@ -59,19 +60,28 @@ public class YouTubeSource  implements Source<VideoModel> {
         return videoModels;
     }
 
-    public void search(){
+    private void search(){
         try {
             YouTube.Search.List search = youtube.search().list("id,snippet");
             search.setKey(this.properties.getProperty("api_key"));
             search.setQ(this.query);
             search.setOrder("viewcount");
+            if(!pageToken.equals("")){
+                search.setPageToken(pageToken);
+            }
+
             search.setMaxResults(MAX_ITEMS);
             // Call the API and print results.
             SearchListResponse response = search.execute();
+            //get page token from response
+            pageToken = response.getNextPageToken();
             List<SearchResult> searchResultList = response.getItems();
             Iterator<SearchResult> searchResultIterator = searchResultList.iterator();
+            int counter  =0;
             while(searchResultIterator.hasNext()){
+                //System.out.println(counter++);
                 SearchResult video = searchResultIterator.next();
+
                 ResourceId rId = video.getId();
                 //determine if the video is a video
                 if (rId.getKind().equals("youtube#video")) {
@@ -104,7 +114,6 @@ public class YouTubeSource  implements Source<VideoModel> {
             if(resultsList != null) {
                 // Only one item in the list because video searched bu ID.
                 Video video = resultsList.get(0);
-                System.out.println(video);
                 VideoStatistics stats = video.getStatistics();
                 videoModels.push(getVideoModel(stats, videoResult));
             }
@@ -122,14 +131,14 @@ public class YouTubeSource  implements Source<VideoModel> {
     */
     private VideoModel getVideoModel(VideoStatistics stats, SearchResult video){
         VideoModel vm = new VideoModel();
-        System.out.println(vm);
-        System.out.println(video);
+//        System.out.println(vm);
+//        System.out.println(video);
         vm.id = video.getId().getVideoId();
         vm.title = video.getSnippet().getTitle();
         vm.publishedDate = video.getSnippet().getPublishedAt().toString();
         vm.commentCount = stats.getCommentCount();
         vm.viewCount = stats.getViewCount();
-        System.out.println(vm.viewCount);
+        //System.out.println(vm.viewCount);
         // null pointer here
         vm.likeCount = stats.getLikeCount();
         vm.dislikeCount = stats.getDislikeCount();

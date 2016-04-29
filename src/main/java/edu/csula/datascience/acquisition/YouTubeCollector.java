@@ -6,6 +6,7 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import twitter4j.Status;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -27,9 +28,22 @@ public class YouTubeCollector implements Collector<VideoModel, VideoModel> {
         // select collection by name `tweets`
         collection = database.getCollection("videos");
     }
+
     @Override
     public Collection<VideoModel> mungee(Collection<VideoModel> src) {
-        return src;
+
+        List<VideoModel> cleanedList = new ArrayList<>();
+
+        for (VideoModel video: src) {
+
+            if (video.id != null && video.title != null && video.publishedDate != null && video.dislikeCount != null &&
+                    video.likeCount != null && video.commentCount != null && video.viewCount != null) {
+                cleanedList.add(video);
+            }
+
+        }
+
+        return cleanedList;
     }
 
     @Override
@@ -39,10 +53,11 @@ public class YouTubeCollector implements Collector<VideoModel, VideoModel> {
                         .append("videoId", vm.id)
                         .append("title", vm.title)
                         .append("publishedDate", vm.publishedDate)
-                        .append("dislikeCount", vm.dislikeCount.intValue())
+                        //.append("dislikeCount", vm.dislikeCount.intValue())
                         .append("commentCount", vm.commentCount.intValue())
                         .append("viewCount", vm.viewCount.intValue())
                         .append("likeCount", vm.likeCount.intValue()))
+
                 .collect(Collectors.toList());
 
         collection.insertMany(documents);
