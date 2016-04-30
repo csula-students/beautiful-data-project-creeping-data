@@ -19,9 +19,8 @@ public class MockSource implements Source<MockData> {
     @Override
     public Collection<MockData> next() {
         return Lists.newArrayList(
-            new MockData("1", null),
-            new MockData("2", "content2"),
-            new MockData("3", "content3")
+            new MockData("mygirl", "100", "10"),
+            new MockData("bmw", "2", "6")
         );
     }
 }
