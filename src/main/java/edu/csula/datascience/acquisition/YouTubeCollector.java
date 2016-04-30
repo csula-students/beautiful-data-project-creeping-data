@@ -1,11 +1,14 @@
 package edu.csula.datascience.acquisition;
 
+import com.google.api.services.youtube.model.CommentThread;
+import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import twitter4j.Status;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -37,17 +40,21 @@ public class YouTubeCollector implements Collector<VideoModel, VideoModel> {
         for (VideoModel video: src) {
 
             if (video.id != null && video.title != null && video.publishedDate != null && video.dislikeCount != null &&
-                    video.likeCount != null && video.commentCount != null && video.viewCount != null) {
+                    video.likeCount != null && video.commentCount != null && video.viewCount != null && (!video.comments.isEmpty())) {
                 cleanedList.add(video);
             }
 
         }
-
         return cleanedList;
     }
 
     @Override
     public void save(Collection<VideoModel> data) {
+        BasicDBObject doc = new BasicDBObject();
+//        Collection<VideoModel> forCommentsOnly = data.stream();
+//
+        for(CommentThread a : data.)
+
         List<Document> documents = data.stream()
                 .map(vm -> new Document()
                         .append("videoId", vm.id)
@@ -56,7 +63,8 @@ public class YouTubeCollector implements Collector<VideoModel, VideoModel> {
                         //.append("dislikeCount", vm.dislikeCount.intValue())
                         .append("commentCount", vm.commentCount.intValue())
                         .append("viewCount", vm.viewCount.intValue())
-                        .append("likeCount", vm.likeCount.intValue()))
+                        .append("likeCount", vm.likeCount.intValue())
+                        .append("comments", vm.)
 
                 .collect(Collectors.toList());
 
