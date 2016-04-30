@@ -1,6 +1,8 @@
 package edu.csula.datascience.acquisition;
 
+import com.google.api.services.youtube.model.CommentSnippet;
 import com.google.api.services.youtube.model.CommentThread;
+import com.mongodb.BasicDBList;
 import com.mongodb.BasicDBObject;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -9,9 +11,7 @@ import org.bson.Document;
 import twitter4j.Status;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -39,8 +39,8 @@ public class YouTubeCollector implements Collector<VideoModel, VideoModel> {
 
         for (VideoModel video: src) {
 
-            if (video.id != null && video.title != null && video.publishedDate != null && video.dislikeCount != null &&
-                    video.likeCount != null && video.commentCount != null && video.viewCount != null && (!video.comments.isEmpty())) {
+            if (video != null && video.id != null && video.title != null && video.publishedDate != null && video.dislikeCount != null &&
+                    video.likeCount != null && video.commentCount != null && video.viewCount != null && !video.comments.isEmpty()) {
                 cleanedList.add(video);
             }
 
@@ -50,22 +50,35 @@ public class YouTubeCollector implements Collector<VideoModel, VideoModel> {
 
     @Override
     public void save(Collection<VideoModel> data) {
-        BasicDBObject doc = new BasicDBObject();
-//        Collection<VideoModel> forCommentsOnly = data.stream();
-//
-        for(CommentThread a : data.)
+        // map to have O(1) access to a dbList based off id
+        Map<String,BasicDBList> map = new HashMap<>();
+        // check all video models
+        for(VideoModel vm: data){
+            // list of all comments for each video
+            BasicDBList dbList = new BasicDBList();
+            // check all comments of the video and add them into
+            // the list
+            for(CommentThread ct: vm.comments){
+                Document commentsDoc = new Document();
+                CommentSnippet cs = ct.getSnippet().getTopLevelComment().getSnippet();
+                commentsDoc.put("name", cs.getAuthorDisplayName());
+                commentsDoc.put("likeCount", cs.getLikeCount());
+                commentsDoc.put("comment", cs.getTextDisplay());
+                dbList.add(commentsDoc);
+            }
+            map.put(vm.id, dbList);
+        }
 
         List<Document> documents = data.stream()
                 .map(vm -> new Document()
                         .append("videoId", vm.id)
                         .append("title", vm.title)
                         .append("publishedDate", vm.publishedDate)
-                        //.append("dislikeCount", vm.dislikeCount.intValue())
+                        .append("dislikeCount", vm.dislikeCount.intValue())
                         .append("commentCount", vm.commentCount.intValue())
                         .append("viewCount", vm.viewCount.intValue())
                         .append("likeCount", vm.likeCount.intValue())
-                        .append("comments", vm.)
-
+                        .append("comments", map.get(vm.id)))
                 .collect(Collectors.toList());
 
         collection.insertMany(documents);
