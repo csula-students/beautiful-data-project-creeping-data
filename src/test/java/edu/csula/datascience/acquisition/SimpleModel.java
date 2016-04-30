@@ -20,7 +20,5 @@ public class SimpleModel {
         return content;
     }
 
-    public static SimpleModel build(MockData data) {
-        return new SimpleModel(data.getId(), data.getContent());
-    }
+
 }
