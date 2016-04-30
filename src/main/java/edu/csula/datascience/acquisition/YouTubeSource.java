@@ -4,8 +4,6 @@ import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.*;
-import com.google.api.services.youtube.model.Comment;
-import com.google.api.services.youtube.model.CommentSnippet;
 import com.google.api.services.youtube.model.CommentThread;
 import com.google.api.services.youtube.model.CommentThreadListResponse;
 
@@ -133,8 +131,10 @@ public class YouTubeSource  implements Source<VideoModel> {
     private List<CommentThread> ViewerComments(SearchResult Video){
         List<CommentThread> comments = null;
         int counter =0;
+        //iterate through all the comment pages of the ceraint vide
         while(commentPageToken != null) {
             try {
+                //make a request and get a response
                 CommentThreadListResponse videoComments = youtube.commentThreads()
                         .list("snippet")
                         .setKey(properties.getProperty("api_key"))
@@ -143,12 +143,8 @@ public class YouTubeSource  implements Source<VideoModel> {
                         .setPageToken(commentPageToken)
                         .setTextFormat("plainText")
                         .execute();
-//                System.out.println(videoComments.getItems()
-//                        .get(0).getSnippet()
-//                        .getTopLevelComment()
-//                        .getSnippet()
-//                        .getAuthorDisplayName());
                 counter++;
+                //get the enxt page
                 commentPageToken = videoComments.getNextPageToken();
                 comments = videoComments.getItems();
             } catch (IOException e) {
@@ -156,7 +152,8 @@ public class YouTubeSource  implements Source<VideoModel> {
             }
         }
         System.out.println(counter);
-        pageToken = "";
+        //reset the comments page token back to the initial page
+        commentPageToken = "";
         return  comments;
     }
     /**
