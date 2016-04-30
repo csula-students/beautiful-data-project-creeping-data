@@ -7,8 +7,8 @@ import com.google.api.services.youtube.model.*;
 import com.google.api.services.youtube.model.Comment;
 import com.google.api.services.youtube.model.CommentSnippet;
 import com.google.api.services.youtube.model.CommentThread;
-import com.google.api.services.youtube.model.V3CommentListResponse;
-import com.google.api.services.youtube.model.V3CommentThreadListResponse;
+import com.google.api.services.youtube.model.CommentThreadListResponse;
+
 
 import java.io.*;
 import java.util.*;
@@ -26,7 +26,7 @@ public class YouTubeSource  implements Source<VideoModel> {
     private static String FILE_PATH = "misc/youtube_key.properties";
     private static long MAX_ITEMS = 50;
 
-    public YouTubeSource(String query){
+    public YouTubeSource(String query) {
         this.query = query;
         this.videoModels = new Stack<>();
         this.pageToken = "";
@@ -42,8 +42,8 @@ public class YouTubeSource  implements Source<VideoModel> {
         this.youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request -> {
         }).setApplicationName("youtube-creeper-data-science").build();
 
-        while(pageToken != null)
-             search();
+        while (pageToken != null)
+            search();
 
     }
 
@@ -52,26 +52,25 @@ public class YouTubeSource  implements Source<VideoModel> {
      *
      */
     @Override
-    public boolean hasNext(){
+    public boolean hasNext() {
         return !videoModels.empty();
     }
 
     /***
-     *
      * @return TODO:: RETURN SOMEthing
      */
     @Override
-    public Collection<VideoModel> next(){
+    public Collection<VideoModel> next() {
         return videoModels;
-}
+    }
 
-    private void search(){
+    private void search() {
         try {
             YouTube.Search.List search = youtube.search().list("id,snippet");
             search.setKey(this.properties.getProperty("api_key"));
             search.setQ(this.query);
             search.setOrder("viewcount");
-            if(!pageToken.equals("")){
+            if (!pageToken.equals("")) {
                 search.setPageToken(pageToken);
             }
 
@@ -82,8 +81,8 @@ public class YouTubeSource  implements Source<VideoModel> {
             pageToken = response.getNextPageToken();
             List<SearchResult> searchResultList = response.getItems();
             Iterator<SearchResult> searchResultIterator = searchResultList.iterator();
-            int counter  =0;
-            while(searchResultIterator.hasNext()){
+            int counter = 0;
+            while (searchResultIterator.hasNext()) {
                 //System.out.println(counter++);
                 SearchResult video = searchResultIterator.next();
 
@@ -104,7 +103,7 @@ public class YouTubeSource  implements Source<VideoModel> {
      *
      * @param videoResult The upper level information of a video.
      */
-    private void addVideoModel(SearchResult videoResult){
+    private void addVideoModel(SearchResult videoResult) {
         try {
             // set parameters of request
             YouTube.Videos.List videos = youtube.videos().list("id,statistics");
@@ -112,11 +111,12 @@ public class YouTubeSource  implements Source<VideoModel> {
             videos.setKey(properties.getProperty("api_key"));
             videos.setMaxResults(MAX_ITEMS);
 
+
             // make request and get response
             VideoListResponse responseList = videos.execute();
             List<Video> resultsList = responseList.getItems();
 
-            if(resultsList != null) {
+            if (resultsList != null) {
                 // Only one item in the list because video searched bu ID.
                 Video video = resultsList.get(0);
                 VideoStatistics stats = video.getStatistics();
@@ -127,14 +127,31 @@ public class YouTubeSource  implements Source<VideoModel> {
         }
     }
 
+
+    private List<CommentThread> ViewerComments(SearchResult Video){
+        List<CommentThread> comments = null;
+        try {
+            CommentThreadListResponse videoComments = youtube.commentThreads()
+                    .list("snippet")
+                    .setKey(properties.getProperty("api_key"))
+                    .setVideoId(Video.getId().getVideoId())
+                    .setTextFormat("plainText")
+                    .execute();
+            comments = videoComments.getItems();
+        } catch (IOException e){
+            System.out.print(e);
+        }
+
+        return  comments;
+    }
     /**
      * Set up a Video model object
      *
      * @param stats the stats information for the video model
      * @param video the video inforamtion for the video model*
-     *@return Video model
-    */
-    private VideoModel getVideoModel(VideoStatistics stats, SearchResult video){
+     * @return Video model
+     */
+    private VideoModel getVideoModel(VideoStatistics stats, SearchResult video) {
         VideoModel vm = new VideoModel();
 //        System.out.println(vm);
 //        System.out.println(video);
@@ -143,33 +160,26 @@ public class YouTubeSource  implements Source<VideoModel> {
         vm.publishedDate = video.getSnippet().getPublishedAt().toString();
         vm.commentCount = stats.getCommentCount();
         vm.viewCount = stats.getViewCount();
-
-        try {
-            V3CommentThreadListResponse videoCommentsListResponse = this.youtube.commentThreads().list("snippet").
-                    setVideoId(video.getId().getVideoId()).setTextFormat("plainText").execute();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(vm.commentCount != null) {
+            vm.comments = ViewerComments(video);
         }
-        vm.comments = videoCommentsListResponse.getItems();
-        if (vm.comments.isEmpty()) {
-            System.out.println("Can't get video comments.");
-        } else {
-            // Print information from the API response.
-            System.out
-                    .println("\n================== Returned Video Comments ==================\n");
-            for (CommentThread comment : vm.comments) {
-                CommentSnippet snippet = comment.getSnippet().getTopLevelComment().getSnippet();
-                //System.out.println("  - Author: " + snippet.getAuthorDisplayName());
-                System.out.println("  - Comment: " + snippet.getTextDisplay());
-                System.out
-                        .println("\n-------------------------------------------------------------\n");
-            }
-            CommentThread firstComment = vm.comments.get(0);
+//        if (!vm.comments.isEmpty()){
+//            for (CommentThread comment : vm.comments){
+//                CommentSnippet snip = comment.getSnippet().getTopLevelComment().getSnippet();
+//                System.out.println("User: " + snip.getAuthorDisplayName());
+//                System.out.println("Comment: " + snip.getTextDisplay());
+//                System.out.println("Date: " + snip.getPublishedAt().toString());
+//                System.out.println("Likes: " + snip.getLikeCount());
+//
+//            }
+//        }
         //System.out.println(vm.viewCount);
         // null pointer here
         vm.likeCount = stats.getLikeCount();
         vm.dislikeCount = stats.getDislikeCount();
+
+
         return vm;
     }
-
 }
+
