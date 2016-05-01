@@ -21,7 +21,7 @@ public class VideoModel {
     public BigInteger commentCount;
     public BigInteger viewCount;
 
-    public List<CommentThread> comments;
+    public List<List<CommentThread>> comments;
 
     public VideoModel(){
         comments = new ArrayList<>();

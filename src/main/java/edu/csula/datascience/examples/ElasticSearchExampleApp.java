@@ -38,6 +38,7 @@ import static org.elasticsearch.node.NodeBuilder.nodeBuilder;
 public class ElasticSearchExampleApp {
     public static void main(String[] args) throws URISyntaxException, IOException {
         Node node = nodeBuilder().settings(Settings.builder()
+                .put("cluster.name", "ceasar")
             .put("path.home", "elasticsearch-data")).node();
         Client client = node.client();
 

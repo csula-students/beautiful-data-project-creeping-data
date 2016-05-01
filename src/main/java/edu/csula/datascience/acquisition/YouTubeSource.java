@@ -7,7 +7,6 @@ import com.google.api.services.youtube.model.*;
 import com.google.api.services.youtube.model.CommentThread;
 import com.google.api.services.youtube.model.CommentThreadListResponse;
 
-
 import java.io.*;
 import java.util.*;
 
@@ -19,21 +18,24 @@ public class YouTubeSource  implements Source<VideoModel> {
     String query;
     YouTube youtube;
     Properties properties;
-    Stack<VideoModel> videoModels;
+    Stack<List<VideoModel>> videoModels;
     String pageToken;
     String commentPageToken;
     private static String FILE_PATH = "misc/youtube_key.properties";
-    private static long MAX_ITEMS = 5;
+    private static long MAX_ITEMS = 50;
 
     public YouTubeSource(String query) {
         this.query = query;
         this.videoModels = new Stack<>();
         this.pageToken = "";
         this.commentPageToken = "";
+
         // Masking developer key using a properties file
         properties = new Properties();
+
         try {
             System.out.println("Properties file Path: " + System.getProperty("user.dir") + FILE_PATH);
+            // get the properties of the file
             properties.load(new FileInputStream(FILE_PATH));
         } catch (IOException e) {
             e.printStackTrace();
@@ -41,10 +43,7 @@ public class YouTubeSource  implements Source<VideoModel> {
 
         this.youtube = new YouTube.Builder(new NetHttpTransport(), new JacksonFactory(), request -> {
         }).setApplicationName("youtube-creeper-data-science").build();
-
-        //while (pageToken != null)
-            search();
-
+        search();
     }
 
     /**
@@ -61,40 +60,58 @@ public class YouTubeSource  implements Source<VideoModel> {
      */
     @Override
     public Collection<VideoModel> next() {
-        return videoModels;
+        System.out.println(videoModels.peek().size());
+
+        // to avoid downloading too much data, we download the next page
+        if(pageToken != null)search();
+
+        System.out.println(videoModels.peek().size());
+        return videoModels.pop();
     }
 
+    /**
+     * Search videos based on user queries
+     *
+     *
+     */
     private void search() {
-        try {
-            YouTube.Search.List search = youtube.search().list("id,snippet");
-            search.setKey(this.properties.getProperty("api_key"));
-            search.setQ(this.query);
-//            if (!pageToken.equals("")) {
-//                search.setPageToken(pageToken);
-//            }
+        //while(pageToken != null) {
+            try {
+                // set up the search url
+                YouTube.Search.List search = youtube.search().list("id,snippet");
+                search.setKey(this.properties.getProperty("api_key"));
+                search.setQ(this.query);
+                search.setPageToken(pageToken);
+                search.setMaxResults(MAX_ITEMS);
 
-            search.setMaxResults(MAX_ITEMS);
-            // Call the API and print results.
-            SearchListResponse response = search.execute();
-            //get page token from response
-            pageToken = response.getNextPageToken();
-            //System.out.println(pageToken);
-            List<SearchResult> searchResultList = response.getItems();
-            Iterator<SearchResult> searchResultIterator = searchResultList.iterator();
-            int counter = 0;
-            while (searchResultIterator.hasNext()) {
-                SearchResult video = searchResultIterator.next();
+                // excecute request and get response
+                SearchListResponse response = search.execute();
 
-                ResourceId rId = video.getId();
-                //System.out.println(rId.getKind());
-                if (rId.getKind().equals("youtube#video")) {
-                    System.out.println(video.getSnippet().getTitle());
-                    addVideoModel(video);
+                // get token for the next page
+                pageToken = response.getNextPageToken();
+
+                // conver json response to a list
+                List<SearchResult> searchResultList = response.getItems();
+                Iterator<SearchResult> searchResultIterator = searchResultList.iterator();
+
+                // iterate through all results
+                while (searchResultIterator.hasNext()) {
+                    List<VideoModel> vms = new ArrayList<>();
+                    SearchResult video = searchResultIterator.next();
+                    ResourceId rId = video.getId();
+
+                    // check for only youtube videos
+                    if (rId.getKind().equals("youtube#video")) {
+                        System.out.println(video.getSnippet().getTitle());
+                        addVideoModel(video, vms);
+                    }
+
+                    videoModels.push(vms);
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+       // }
     }
 
     /**
@@ -103,14 +120,13 @@ public class YouTubeSource  implements Source<VideoModel> {
      *
      * @param videoResult The upper level information of a video.
      */
-    private void addVideoModel(SearchResult videoResult) {
+    private void addVideoModel(SearchResult videoResult, List<VideoModel> vms) {
         try {
             // set parameters of request
             YouTube.Videos.List videos = youtube.videos().list("id,statistics");
             videos.setId(videoResult.getId().getVideoId());
             videos.setKey(properties.getProperty("api_key"));
             videos.setMaxResults(MAX_ITEMS);
-
 
             // make request and get response
             VideoListResponse responseList = videos.execute();
@@ -120,7 +136,8 @@ public class YouTubeSource  implements Source<VideoModel> {
                 // Only one item in the list because video searched bu ID.
                 Video video = resultsList.get(0);
                 VideoStatistics stats = video.getStatistics();
-                videoModels.push(getVideoModel(stats, videoResult));
+                vms.add(getVideoModel(stats, videoResult));
+                //System.out.println(vms.size());
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -128,32 +145,35 @@ public class YouTubeSource  implements Source<VideoModel> {
     }
 
 
-    private List<CommentThread> ViewerComments(SearchResult Video){
-        List<CommentThread> comments = null;
+    private List< List<CommentThread> > ViewerComments(SearchResult Video){
+        List<List<CommentThread>> comments = new ArrayList<>();
         int counter =0;
         //iterate through all the comment pages of the ceraint vide
         while(commentPageToken != null) {
             try {
                 //make a request and get a response
                 CommentThreadListResponse videoComments = youtube.commentThreads()
-                        .list("snippet")
-                        .setKey(properties.getProperty("api_key"))
-                        .setVideoId(Video.getId().getVideoId())
-                        .setMaxResults(MAX_ITEMS)
-                        .setPageToken(commentPageToken)
-                        .setTextFormat("plainText")
-                        .execute();
+                                .list("snippet")
+                                .setKey(properties.getProperty("api_key"))
+                                .setVideoId(Video.getId().getVideoId())
+                                .setMaxResults((long) 100)
+                                .setPageToken(commentPageToken)
+                                .setTextFormat("plainText")
+                                .execute();
                 counter++;
-                //get the enxt page
+                //get the next page
                 commentPageToken = videoComments.getNextPageToken();
-                comments = videoComments.getItems();
+                comments.add(videoComments.getItems());
             } catch (IOException e) {
                 System.out.print(e);
             }
         }
-        System.out.println(counter);
-        //reset the comments page token back to the initial page
+
+        System.out.println("Number of Comments downloaded = " + comments.size());
+
+        // reset the comments page token back to the initial page
         commentPageToken = "";
+
         return  comments;
     }
     /**
@@ -164,6 +184,7 @@ public class YouTubeSource  implements Source<VideoModel> {
      * @return Video model
      */
     private VideoModel getVideoModel(VideoStatistics stats, SearchResult video) {
+        // set up the video model
         VideoModel vm = new VideoModel();
         vm.id = video.getId().getVideoId();
         vm.title = video.getSnippet().getTitle();
@@ -172,9 +193,11 @@ public class YouTubeSource  implements Source<VideoModel> {
         vm.viewCount = stats.getViewCount();
         vm.likeCount = stats.getLikeCount();
         vm.dislikeCount = stats.getDislikeCount();
+        // check if there are not comments in the video
         if(vm.commentCount != null) {
             vm.comments = ViewerComments(video);
         }
+
         return vm;
     }
 }
