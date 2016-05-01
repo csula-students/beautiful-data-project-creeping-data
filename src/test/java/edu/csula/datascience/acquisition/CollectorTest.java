@@ -40,20 +40,20 @@ public class CollectorTest {
             Assert.assertEquals(list.get(i).viewCount, expectedList.get(i).viewCount);
         }
     }
-    @Test
-    public void mungeeWrong1() throws Exception {
-        List<MockData> list = (List<MockData>) collector.mungee(source.next());
-        List<MockData> expectedList = Lists.newArrayList(
-                new MockData(null, "100", "3"),
-                new MockData("logitech", "10", "40")
-        );
-
-        Assert.assertEquals(list.size(), 2);
-
-        for (int i = 0; i < 2; i ++) {
-            Assert.assertEquals(list.get(i).title, expectedList.get(i).title);
-            Assert.assertEquals(list.get(i).likecount, expectedList.get(i).likecount);
-            Assert.assertEquals(list.get(i).viewCount, expectedList.get(i).viewCount);
-        }
-    }
+//    @Test
+//    public void mungeeWrong1() throws Exception {
+//        List<MockData> list = (List<MockData>) collector.mungee(source.next());
+//        List<MockData> expectedList = Lists.newArrayList(
+//                new MockData(null, "100", "3"),
+//                new MockData("logitech", "10", "40")
+//        );
+//
+//        Assert.assertEquals(list.size(), 2);
+//
+//        for (int i = 0; i < 2; i ++) {
+//            Assert.assertEquals(list.get(i).title, expectedList.get(i).title);
+//            Assert.assertEquals(list.get(i).likecount, expectedList.get(i).likecount);
+//            Assert.assertEquals(list.get(i).viewCount, expectedList.get(i).viewCount);
+//        }
+//    }
 }
