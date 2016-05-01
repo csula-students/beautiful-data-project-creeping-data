@@ -1,22 +1,34 @@
 package edu.csula.datascience.acquisition;
 
+import com.google.api.services.youtube.YouTube;
+import com.google.common.collect.Interner;
+
+import java.util.Properties;
+import java.util.Stack;
+
 /**
  * Mock raw data
  */
 public class MockData {
-    private final String id;
-    private final String content;
+    String title;
+    String likecount;
+    String viewCount;
 
-    public MockData(String id, String content) {
-        this.id = id;
-        this.content = content;
+    public MockData(String title, String likecount, String viewCount) {
+        this.title =  title;
+        this.likecount = likecount;
+        this.viewCount = viewCount;
     }
 
-    public String getId() {
-        return id;
+    public String getQuery() { return title; }
+
+    public String getYoutube()
+    {
+        return likecount;
+    }
+    public String getPageToken()
+    {
+        return viewCount;
     }
 
-    public String getContent() {
-        return content;
-    }
-}
+   }

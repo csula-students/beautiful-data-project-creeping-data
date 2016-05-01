@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
  * A test case to show how to use Collector and Source
  */
 public class CollectorTest {
-    private Collector<SimpleModel, MockData> collector;
+    private Collector<MockData, MockData> collector;
     private Source<MockData> source;
 
     @Before
@@ -24,18 +24,36 @@ public class CollectorTest {
     }
 
     @Test
-    public void mungee() throws Exception {
-        List<SimpleModel> list = (List<SimpleModel>) collector.mungee(source.next());
-        List<SimpleModel> expectedList = Lists.newArrayList(
-            new SimpleModel("2", "content2"),
-            new SimpleModel("3", "content3")
+    public void mungeeCorrect() throws Exception {
+        List<MockData> list = (List<MockData>) collector.mungee(source.next());
+        List<MockData> expectedList = Lists.newArrayList(
+                new MockData("mygirl", "100", "10"),
+                new MockData("bmw", "2", "6")
+
+        );
+        System.out.print(list.size() + " this is the size");
+        Assert.assertEquals(list.size(), 2);
+
+        for (int i = 0; i < 2; i ++) {
+            Assert.assertEquals(list.get(i).title, expectedList.get(i).title);
+            Assert.assertEquals(list.get(i).likecount, expectedList.get(i).likecount);
+            Assert.assertEquals(list.get(i).viewCount, expectedList.get(i).viewCount);
+        }
+    }
+    @Test
+    public void mungeeWrong1() throws Exception {
+        List<MockData> list = (List<MockData>) collector.mungee(source.next());
+        List<MockData> expectedList = Lists.newArrayList(
+                new MockData(null, "100", "3"),
+                new MockData("logitech", "10", "40")
         );
 
         Assert.assertEquals(list.size(), 2);
 
         for (int i = 0; i < 2; i ++) {
-            Assert.assertEquals(list.get(i).getId(), expectedList.get(i).getId());
-            Assert.assertEquals(list.get(i).getContent(), expectedList.get(i).getContent());
+            Assert.assertEquals(list.get(i).title, expectedList.get(i).title);
+            Assert.assertEquals(list.get(i).likecount, expectedList.get(i).likecount);
+            Assert.assertEquals(list.get(i).viewCount, expectedList.get(i).viewCount);
         }
     }
 }
