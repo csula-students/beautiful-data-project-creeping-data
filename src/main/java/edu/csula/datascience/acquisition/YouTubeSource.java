@@ -37,6 +37,7 @@ public class YouTubeSource  implements Source<VideoModel> {
             System.out.println("Properties file Path: " + System.getProperty("user.dir") + FILE_PATH);
             // get the properties of the file
             properties.load(new FileInputStream(FILE_PATH));
+            
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -56,7 +57,7 @@ public class YouTubeSource  implements Source<VideoModel> {
     }
 
     /***
-     * @return TODO:: RETURN SOMEthing
+     * Next page of videos
      */
     @Override
     public Collection<VideoModel> next() {
@@ -156,7 +157,7 @@ public class YouTubeSource  implements Source<VideoModel> {
                                 .list("snippet")
                                 .setKey(properties.getProperty("api_key"))
                                 .setVideoId(Video.getId().getVideoId())
-                                .setMaxResults((long) 100)
+                                .setMaxResults((long) 1)
                                 .setPageToken(commentPageToken)
                                 .setTextFormat("plainText")
                                 .execute();
