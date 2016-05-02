@@ -31,7 +31,7 @@ public class CollectorTest {
                 new MockData("bmw", "2", "6")
 
         );
-        System.out.print(list.size() + " this is the size");
+
         Assert.assertEquals(list.size(), 2);
 
         for (int i = 0; i < 2; i ++) {
@@ -44,13 +44,14 @@ public class CollectorTest {
     public void mungeeWrong1() throws Exception {
         List<MockData> list = (List<MockData>) collector.mungee(source.next());
         List<MockData> expectedList = Lists.newArrayList(
-                new MockData(null, "100", "3"),
-                new MockData("logitech", "10", "40")
+                new MockData("bmw", "2", "6")
         );
+        list.remove(0);
 
-        Assert.assertEquals(list.size(), 2);
 
-        for (int i = 0; i < 2; i ++) {
+        Assert.assertEquals(list.size(), 1);
+
+        for (int i = 0; i < 1; i ++) {
             Assert.assertEquals(list.get(i).title, expectedList.get(i).title);
             Assert.assertEquals(list.get(i).likecount, expectedList.get(i).likecount);
             Assert.assertEquals(list.get(i).viewCount, expectedList.get(i).viewCount);
