@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="edu.csula.datascience.acquisition.CollectorTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2016-05-01T19:40:57" hostname="ceejay562-HP" time="0.018">
+  <properties/>
+  <testcase name="mungeeCorrect" classname="edu.csula.datascience.acquisition.CollectorTest" time="0.018"/>
+  <system-out><![CDATA[2 this is the size]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

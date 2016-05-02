@@ -40,6 +40,7 @@ public class CollectorTest {
             Assert.assertEquals(list.get(i).viewCount, expectedList.get(i).viewCount);
         }
     }
+
     @Test
     public void mungeeWrong1() throws Exception {
         List<MockData> list = (List<MockData>) collector.mungee(source.next());
@@ -57,4 +58,5 @@ public class CollectorTest {
             Assert.assertEquals(list.get(i).viewCount, expectedList.get(i).viewCount);
         }
     }
+
 }
