@@ -5,8 +5,11 @@ services:
     build: .
     networks:
       - back-tier
+<<<<<<< HEAD
     env_file:
       big-data.env
+=======
+>>>>>>> 582ddf45c0e0800fa836e6f439a1da9e9c24fd88
   db:
     image: mongo:3.2
     container_name: db

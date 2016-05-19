@@ -13,13 +13,14 @@ public class YouTubeCollectorApp {
         YouTubeSource source = new YouTubeSource("trailer");
         YouTubeCollector collector = new YouTubeCollector();
         Collection<VideoModel> videosList = null;
-        while(source.hasNext()){
+        //while(source.hasNext()){
             videosList = source.next();
             Collection<VideoModel> cleanedList = collector.mungee(videosList);
-            System.out.println(cleanedList.size());
-            System.out.println("RUNINGSSSSSSSS");
-            collector.save(cleanedList);
-        }
+            //System.out.println(cleanedList.size());
+            //System.out.println("Size = " + cleanedList.size());
+            if(videosList.size() > 0)
+                collector.save(cleanedList);
+        //}
     }
 
 }

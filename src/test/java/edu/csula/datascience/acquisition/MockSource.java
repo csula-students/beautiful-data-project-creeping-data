@@ -2,7 +2,10 @@ package edu.csula.datascience.acquisition;
 
 import com.google.common.collect.Lists;
 
+<<<<<<< HEAD
 import java.util.ArrayList;
+=======
+>>>>>>> 582ddf45c0e0800fa836e6f439a1da9e9c24fd88
 import java.util.Collection;
 import java.util.function.Consumer;
 
@@ -12,6 +15,7 @@ import java.util.function.Consumer;
 public class MockSource implements Source<MockData> {
     int index = 0;
 
+<<<<<<< HEAD
 
 //    public Collection<MockData> wrong() {
 //        return Lists.newArrayList(
@@ -19,6 +23,8 @@ public class MockSource implements Source<MockData> {
 //        );
 //    }
 
+=======
+>>>>>>> 582ddf45c0e0800fa836e6f439a1da9e9c24fd88
     @Override
     public boolean hasNext() {
         return index < 1;
@@ -27,9 +33,17 @@ public class MockSource implements Source<MockData> {
     @Override
     public Collection<MockData> next() {
         return Lists.newArrayList(
+<<<<<<< HEAD
                 new MockData("mygirl", "100", "10"),
                 new MockData("bmw", "2", "6")
         );
     }
 
+=======
+            new MockData("1", null),
+            new MockData("2", "content2"),
+            new MockData("3", "content3")
+        );
+    }
+>>>>>>> 582ddf45c0e0800fa836e6f439a1da9e9c24fd88
 }

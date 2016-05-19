@@ -18,7 +18,7 @@ public class YouTubeSource  implements Source<VideoModel> {
     String query;
     YouTube youtube;
     Properties properties;
-    Stack<List<VideoModel>> videoModels;
+    List<VideoModel> videoModels;
     String pageToken;
     String commentPageToken;
     private static String FILE_PATH = "misc/youtube_key.properties";
@@ -26,7 +26,7 @@ public class YouTubeSource  implements Source<VideoModel> {
 
     public YouTubeSource(String query) {
         this.query = query;
-        this.videoModels = new Stack<>();
+        this.videoModels = new ArrayList<>();
         this.pageToken = "";
         this.commentPageToken = "";
 
@@ -53,7 +53,7 @@ public class YouTubeSource  implements Source<VideoModel> {
      */
     @Override
     public boolean hasNext() {
-        return !videoModels.empty();
+        return pageToken != null;
     }
 
     /***
@@ -61,13 +61,7 @@ public class YouTubeSource  implements Source<VideoModel> {
      */
     @Override
     public Collection<VideoModel> next() {
-        System.out.println(videoModels.peek().size());
-
-        // to avoid downloading too much data, we download the next page
-        if(pageToken != null)search();
-
-        System.out.println(videoModels.peek().size());
-        return videoModels.pop();
+        return videoModels;
     }
 
     /**
@@ -76,7 +70,7 @@ public class YouTubeSource  implements Source<VideoModel> {
      *
      */
     private void search() {
-        //while(pageToken != null) {
+        while(pageToken != null) {
             try {
                 // set up the search url
                 YouTube.Search.List search = youtube.search().list("id,snippet");
@@ -95,24 +89,23 @@ public class YouTubeSource  implements Source<VideoModel> {
                 List<SearchResult> searchResultList = response.getItems();
                 Iterator<SearchResult> searchResultIterator = searchResultList.iterator();
 
+                List<VideoModel> vms = new ArrayList<>();
                 // iterate through all results
                 while (searchResultIterator.hasNext()) {
-                    List<VideoModel> vms = new ArrayList<>();
+                    //List<VideoModel> vms = new ArrayList<>();
                     SearchResult video = searchResultIterator.next();
                     ResourceId rId = video.getId();
 
                     // check for only youtube videos
                     if (rId.getKind().equals("youtube#video")) {
                         System.out.println(video.getSnippet().getTitle());
-                        addVideoModel(video, vms);
+                        addVideoModel(video);
                     }
-
-                    videoModels.push(vms);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
-       // }
+        }
     }
 
     /**
@@ -121,13 +114,13 @@ public class YouTubeSource  implements Source<VideoModel> {
      *
      * @param videoResult The upper level information of a video.
      */
-    private void addVideoModel(SearchResult videoResult, List<VideoModel> vms) {
+    private void addVideoModel(SearchResult videoResult) {
         try {
             // set parameters of request
             YouTube.Videos.List videos = youtube.videos().list("id,statistics");
             videos.setId(videoResult.getId().getVideoId());
             videos.setKey(properties.getProperty("api_key"));
-            videos.setMaxResults(MAX_ITEMS);
+            //videos.setMaxResults(MAX_ITEMS);
 
             // make request and get response
             VideoListResponse responseList = videos.execute();
@@ -137,7 +130,7 @@ public class YouTubeSource  implements Source<VideoModel> {
                 // Only one item in the list because video searched bu ID.
                 Video video = resultsList.get(0);
                 VideoStatistics stats = video.getStatistics();
-                vms.add(getVideoModel(stats, videoResult));
+                videoModels.add(getVideoModel(stats, videoResult));
                 //System.out.println(vms.size());
             }
         } catch (IOException e) {
@@ -194,11 +187,6 @@ public class YouTubeSource  implements Source<VideoModel> {
         vm.viewCount = stats.getViewCount();
         vm.likeCount = stats.getLikeCount();
         vm.dislikeCount = stats.getDislikeCount();
-        // check if there are not comments in the video
-        if(vm.commentCount != null) {
-            vm.comments = ViewerComments(video);
-        }
-
         return vm;
     }
 }

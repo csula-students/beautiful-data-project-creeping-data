@@ -362,7 +362,11 @@ We have to tell our application to connect to MongoDB running in different conta
 
 In usual dev ops world, you will need to do your own manual networking. With docker, the networking process will be simplified by the docker-compose.
 
+<<<<<<< HEAD
 Now you can change our main class under `build.gradle` line 21 to MongoDB example
+=======
+Now you can change our main class under `build.gradle` line 21 to MongoDB example app and build and run using docker.
+>>>>>>> 582ddf45c0e0800fa836e6f439a1da9e9c24fd88
 
 ### Elastic Search
 
@@ -447,7 +451,11 @@ $ curl http://localhost:9200/\?pretty
 
 ### Debugging in Sense
 
+<<<<<<< HEAD
 For people who doesn't have `curl` installed locally. *Ahem* windows users, I suggested you to install sense so that you can execute curl like command without worry about curl command.
+=======
+I suggested you to install sense so that we can walk through the tutorial of Elastic Search without worry of learning curl.
+>>>>>>> 582ddf45c0e0800fa836e6f439a1da9e9c24fd88
 
 * Install [Kibana](https://www.elastic.co/downloads/kibana)
 * Run `./bin/kibana plugin --install elastic/sense` under kibana folder to install sense

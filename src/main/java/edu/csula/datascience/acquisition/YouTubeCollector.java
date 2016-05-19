@@ -40,9 +40,13 @@ public class YouTubeCollector implements Collector<VideoModel, VideoModel> {
 
         for (VideoModel video: src) {
 
-            if (video != null && video.id != null && video.title != null && video.publishedDate != null && video.dislikeCount != null &&
-                    video.likeCount != null && video.commentCount != null && video.viewCount != null && !video.comments.isEmpty()) {
+            if (video != null && video.id != null && video.title != null && video.publishedDate != null
+                    && video.dislikeCount != null && video.likeCount != null
+                    && video.commentCount != null && video.viewCount != null) {
                 cleanedList.add(video);
+            }
+            else{
+                System.out.println("Cleaned");
             }
 
         }
@@ -81,8 +85,7 @@ public class YouTubeCollector implements Collector<VideoModel, VideoModel> {
                         .append("dislikeCount", vm.dislikeCount.intValue())
                         .append("commentCount", vm.commentCount.intValue())
                         .append("viewCount", vm.viewCount.intValue())
-                        .append("likeCount", vm.likeCount.intValue())
-                        .append("comments", map.get(vm.id)))
+                        .append("likeCount", vm.likeCount.intValue()))
                 .collect(Collectors.toList());
 
         collection.insertMany(documents);
