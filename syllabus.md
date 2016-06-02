@@ -199,11 +199,20 @@ The schedule below is tentative and is subject to change.
 | 5 [5/1]       | [Data Analysis][4] | Elastic Search Query **Quiz 2** |
 | 6 [5/8]       | [Data Analysis][4] | MongoDB MapReduce **No class but remote video and notes** |
 | 7 [5/15]      | [Data Analysis][4] | Install Python **Quiz 3** |
+<<<<<<< HEAD
 | 8 [5/22]      | [Data Analysis][4] | Intro to Machine learning **Homework 3** |
 | 9 [5/29]      | [Data Visualization][5] | JavaScript and D3 **Quiz 4** |
 | 10 [6/5]      | [Data Visualization][5] | More visualization **Homework 4** |
 | Final [6/12]     | Launch date | Ready for demo! |
 >>>>>>> 582ddf45c0e0800fa836e6f439a1da9e9c24fd88
+=======
+| 8 [5/22]      | [Data Analysis][4] | Intro to Machine learning |
+| 9 [5/29]      | [Data Visualization][5] | JavaScript and D3 **Quiz 4** **Homework 3** |
+| 10 [6/5]      | Project | Project demo **Homework 4** |
+| Final [6/12]     | Project | Ready for demo! |
+
+> You have choice of presenting the project between week 10 (June 5) and week 11 (June 12). Please select your date accordingly.
+>>>>>>> f2e5d836259f9e4abcfc3232edb9b42648a7131a
 
 [1]: notes/introduction.md
 [2]: notes/data_acquisition.md

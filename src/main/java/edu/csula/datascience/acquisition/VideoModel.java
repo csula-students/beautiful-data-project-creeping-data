@@ -20,7 +20,7 @@ public class VideoModel {
     public BigInteger likeCount;
     public BigInteger commentCount;
     public BigInteger viewCount;
-
+    public String word;
     public List<List<CommentThread>> comments;
 
     public VideoModel(){

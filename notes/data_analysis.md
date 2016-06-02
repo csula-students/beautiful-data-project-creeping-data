@@ -89,42 +89,27 @@ Further, we will also spend about two weeks learning Python and how to use Pytho
 
 John, by next week (May 8th), will talk more in depth about EDA in his video. Stay tuned!
 
-## Elastic Search Query In Depth
+## Elastic search and kibana in depth
 
-Lets do some searching on the weather data we have earlier from last class.
+[Detail goes here](data_analysis_elasticsearch.md)
 
-> Note that in the following examples, I'm assuming you all have the Sense with Kibana set up properly.  
-> In other word, these code only work within **Sense**.
+## Python
 
-We will start by talking about `filtering queries` (structured search)
+### Basic Python
 
-https://www.elastic.co/guide/en/elasticsearch/guide/current/structured-search.html
+[Detail goes here](data_analysis_python_basic.md)
 
-> When working with exact values, you will be working with non-scoring, filtering queries. Filters are important because they are very fast. They do not calculate relevance (avoiding the entire scoring phase) and are easily cached.
+### Python with NumPy and Pandas
 
-```
-GET /bd-data/city-temperatures/_search
-{
-    "query" : {
-        "constant_score" : {
-            "filter" : {
-                "term" : {
-                    "state" : "Washington"
-                }
-            }
-        }
-    }
-}
-```
+[Detail goes here](data_analysis_python_libs.md)
 
-This finds nothing!? But we looked back to the csv file ourselves, we are able to find the state "Washington". Why?
+### Machine Learning
 
-Elastic search by default will analyze the string fields for full text searching. For instance, if we type in below:
+[Detail goes here](data_analysis_python_ml.md)
 
-```
-GET /bd-data/city-temperatures/_search?q=Washington
-```
+### Resources/references
 
+<<<<<<< HEAD
 And we are able to find some records.
 
 Going back to the source code for Elastic Search example. We have to use specific `matchPhrase` as to `match` to look for "Washington" data. This is due to the same reason -- Elastic Search automatically analyze string field.
@@ -625,3 +610,10 @@ For example, you can start by creating a pie chart with aggregation of terms lik
 
 ![Kibana bar chart](imgs/kibana_bar_chart.png)
 >>>>>>> 582ddf45c0e0800fa836e6f439a1da9e9c24fd88
+=======
+* https://github.com/vinta/awesome-python
+* https://developers.google.com/edu/python/
+* [Numpy Tutorial](http://scipy.github.io/old-wiki/pages/Tentative_NumPy_Tutorial.html)
+* [Scipy tutorial](http://docs.scipy.org/doc/scipy/reference/tutorial/)
+* [Pandas in 10 minutes](http://pandas.pydata.org/pandas-docs/stable/10min.html)
+>>>>>>> f2e5d836259f9e4abcfc3232edb9b42648a7131a

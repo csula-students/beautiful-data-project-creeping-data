@@ -36,6 +36,7 @@ dependencies {
   compile 'org.elasticsearch:elasticsearch:2.2.0'
   compile 'com.google.code.gson:gson:2.6.2'
   compile 'org.apache.commons:commons-csv:1.2'
+  compile group: 'io.searchbox', name: 'jest', version: '2.0.2'
 
   compile 'com.google.apis:google-api-services-youtube:v3-rev166-1.21.0'
   compile 'com.google.gdata:core:1.47.1'
@@ -69,6 +70,7 @@ task esExample(type: JavaExec) {
   main = 'edu.csula.datascience.examples.ElasticSearchExampleApp'
 }
 
+<<<<<<< HEAD
 task acquireDBVideo(type: JavaExec) {
   classpath = sourceSets.main.runtimeClasspath
 
@@ -79,6 +81,18 @@ task acquireYoutube(type: JavaExec) {
   classpath = sourceSets.main.runtimeClasspath
 
   main = 'edu.csula.datascience.acquisition.YoutTubeCollectorApp'
+=======
+task esQuiz(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+
+  main = 'edu.csula.datascience.examples.QuizESApp'
+}
+
+task remoteEs(type: JavaExec) {
+  classpath = sourceSets.main.runtimeClasspath
+
+  main = 'edu.csula.datascience.examples.JestExampleApp'
+>>>>>>> f2e5d836259f9e4abcfc3232edb9b42648a7131a
 }
 
 task wrapper(type: Wrapper) {
