@@ -46,23 +46,9 @@ public class YouTubeCollector implements Collector<VideoModel, VideoModel> {
 					&& video.publishedDate != null
 					&& video.dislikeCount != null && video.likeCount != null
 					&& video.commentCount != null && video.viewCount != null) {
-
-				// ///////////////// cleaning the title
-
-				String cleanedTitle;
-				String[] words = video.title.split("\\s+");
-				for (int i = 0; i < words.length; i++) {
-					if (words[i].equals("Official")) {
-						break;
-					} else {
-						cleanedTitle = words[i] + " ";
-					}
-				}
-				video.title = cleanedTitle;
-
 				cleanedList.add(video);
 			} else {
-				System.out.println("Cleaned");
+				System.out.println("Dirty");
 			}
 
 		}
@@ -102,7 +88,8 @@ public class YouTubeCollector implements Collector<VideoModel, VideoModel> {
 						.append("dislikeCount", vm.dislikeCount.intValue())
 						.append("commentCount", vm.commentCount.intValue())
 						.append("viewCount", vm.viewCount.intValue())
-						.append("likeCount", vm.likeCount.intValue()))
+						.append("likeCount", vm.likeCount.intValue())
+						.append("word", vm.word))
 				.collect(Collectors.toList());
 
 		collection.insertMany(documents);

@@ -98,7 +98,7 @@ public class YouTubeSource  implements Source<VideoModel> {
 
                     // check for only youtube videos
                     if (rId.getKind().equals("youtube#video")) {
-                        System.out.println(video.getSnippet().getTitle());
+                        //System.out.println(video.getSnippet().getTitle());
                         addVideoModel(video);
                     }
                 }
@@ -126,7 +126,7 @@ public class YouTubeSource  implements Source<VideoModel> {
             VideoListResponse responseList = videos.execute();
             List<Video> resultsList = responseList.getItems();
 
-            if (resultsList != null) {
+            if (resultsList != null && resultsList.size() > 0) {
                 // Only one item in the list because video searched bu ID.
                 Video video = resultsList.get(0);
                 VideoStatistics stats = video.getStatistics();
@@ -187,6 +187,7 @@ public class YouTubeSource  implements Source<VideoModel> {
         vm.viewCount = stats.getViewCount();
         vm.likeCount = stats.getLikeCount();
         vm.dislikeCount = stats.getDislikeCount();
+        vm.word = query;
         return vm;
     }
 }
